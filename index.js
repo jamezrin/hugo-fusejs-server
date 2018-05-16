@@ -36,7 +36,7 @@ let fuseSettings = {
     location: 0,
     distance: 100,
     maxPatternLength: 32,
-    minMatchCharLength: 1,
+    minMatchCharLength: 3,
     keys: [{
         name: "title",
         weight: 0.7
@@ -109,18 +109,18 @@ app.get('/', (req, res) => {
 
     if (!siteId || !query) {
         return res.status(500)
-            .send("Wrong parameters");
+            .send("Some parameters were not provided");
     }
 
     if (query.length < 2) {
         return res.status(500)
-            .send("Too small of a search query") //Maybe remove this?
+            .send("Too small of a search query, type more") //Maybe remove this?
     }
 
     let site = instances[siteId];
     if (!site) {
         return res.status(404)
-            .send("Could not find that site");
+            .send("Could not find that site, check the id");
     }
 
     let results = site.fuse.search(query);
