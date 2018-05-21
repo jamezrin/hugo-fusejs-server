@@ -1,5 +1,5 @@
 const SiteMapper = require('sitemapper'),   Fuse    = require('fuse.js'),   RateLimit = require('express-rate-limit'),
-      express    = require('express'),      request = require('request'),
+      express    = require('express'),      request = require('request'),   expressSanitized = require('express-sanitize-escape'),
       url        = require('url'),          cheerio = require('cheerio');
 
 function clean(string) {
@@ -54,9 +54,17 @@ const port = 3000;
 const app = express();
 app.use(new RateLimit({
     windowMs: 60 * 1000,
-    max: 100,
+    max: 300,
     delayMs: 0
 }));
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+app.use(expressSanitized.middleware());
 
 const mapper = new SiteMapper();
 let instances = {};
@@ -134,7 +142,7 @@ app.get('/', (req, res) => {
         });
     });
 
-    res.json(data);
+    res.status(200).json(data);
 });
 
 app.listen(port, (err) => {
