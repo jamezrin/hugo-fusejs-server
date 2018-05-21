@@ -1,6 +1,6 @@
 const SiteMapper = require('sitemapper'),   Fuse    = require('fuse.js'),   RateLimit = require('express-rate-limit'),
       express    = require('express'),      request = require('request'),   expressSanitized = require('express-sanitize-escape'),
-      url        = require('url'),          cheerio = require('cheerio');
+      url        = require('url'),          cheerio = require('cheerio'),   morgan = require('morgan');
 
 function clean(string) {
     return string
@@ -35,7 +35,7 @@ let fuseSettings = {
     threshold: 0.6,
     location: 0,
     distance: 100,
-    maxPatternLength: 32,
+    maxPatternLength: 64,
     minMatchCharLength: 3,
     keys: [{
         name: "title",
@@ -63,6 +63,8 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
+app.use(morgan('combined'));
 
 app.use(expressSanitized.middleware());
 
