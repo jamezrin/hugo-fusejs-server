@@ -122,11 +122,6 @@ app.get('/', (req, res) => {
             .send("Some parameters were not provided");
     }
 
-    if (query.length < 2) {
-        return res.status(500)
-            .send("Too small of a search query, type more") //Maybe remove this?
-    }
-
     let site = instances[siteId];
     if (!site) {
         return res.status(404)
