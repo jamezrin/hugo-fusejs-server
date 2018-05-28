@@ -15,24 +15,37 @@ function split(string) {
         .map(s => clean(s)) //Cleans every single string again just in case
 }
 
+function summarize(result) {
+    for (const match in result.matches) {
+        if (match.key === "content") {
+            return match.value.substring(0,
+                Math.min(match.value.length, 150)
+            );
+        }
+    }
+
+    return result.item.content[0];
+}
+
+
+
 let sites = [
     {
         id: "lang-en",
-        url: "http://localhost:1313/en/",
+        url: "http://192.168.1.150/en/",
     }, {
         id: "lang-cs",
-        url: "http://localhost:1313/cs/",
+        url: "http://192.168.1.150/cs/",
     }, {
         id: "lang-es",
-        url: "http://localhost:1313/es/",
+        url: "http://192.168.1.150/es/",
     }
 ];
 
 let fuseSettings = {
     shouldSort: true,
     includeMatches: true,
-    includeScore: true,
-    threshold: 0.6,
+    threshold: 0.3,
     location: 0,
     distance: 100,
     maxPatternLength: 64,
@@ -115,7 +128,8 @@ sites.forEach(site => {
 app.get('/', (req, res) => {
     const siteId = req.query.id,
         query = req.query.q,
-        limit = req.query.limit || 10;
+        limit = req.query.limit || 10,
+        full = req.query.full || false;
 
     if (!siteId || !query) {
         return res.status(500)
@@ -132,17 +146,29 @@ app.get('/', (req, res) => {
 
     let data = [];
     results.slice(0, parseInt(limit)).forEach(result => {
-        data.push({
-            "title": result.item.title,
-            "url": result.item.url,
-            "matches": result.matches
-        });
+        if (full) {
+            data.push({
+                item: result.item,
+                summary: summarize(result),
+                matches: result.matches,
+            });
+        } else {
+            data.push({
+                item: {
+                    title: result.item.title,
+                    url: result.item.url,
+                },
+
+                summary: summarize(result),
+                matches: result.matches,
+            });
+        }
     });
 
     res.status(200).json(data);
 });
 
-app.listen(port, (err) => {
+app.listen(port, '0.0.0.0', (err) => {
     if (err) {
         throw err;
     }
